@@ -3,11 +3,14 @@ import react from '@vitejs/plugin-react';
 
 export default defineConfig({
   plugins: [react()],
-  base: '/earth-online-paradise/',
+  base: './',
   define: {},
   resolve: {
     alias: {
       cesium: 'cesium'
     }
+  },
+  optimizeDeps: {
+    exclude: ['cesium']
   }
 });

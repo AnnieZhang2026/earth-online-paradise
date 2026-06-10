@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cesium Test</title>
+  <link rel="stylesheet" href="/cesium/Widgets/widgets.css" />
+  <style>
+    html, body, #cesiumContainer {
+      width: 100%; height: 100%; margin: 0; padding: 0; overflow: hidden;
+      background: #000;
+    }
+  </style>
+  <script>
+    window.CESIUM_BASE_URL = '/cesium/';
+  </script>
+  <script src="/cesium/Cesium.js"></script>
+</head>
+<body>
+  <div id="cesiumContainer"></div>
+  <script>
+    console.log('Cesium loaded, version:', Cesium.VERSION);
+
+    try {
+      const viewer = new Cesium.Viewer('cesiumContainer', {
+        baseLayerPicker: false,
+        timeline: false,
+        animation: false,
+        navigationHelpButton: false,
+        homeButton: false,
+        geocoder: false,
+        sceneModePicker: false,
+        infoBox: false,
+        selectionIndicator: false,
+        fullscreenButton: false,
+        vrButton: false,
+        creditContainer: document.createElement('div'),
+      });
+
+      viewer.scene.globe.enableLighting = false;
+      viewer.scene.skyBox = undefined;
+      viewer.scene.backgroundColor = new Cesium.Color(0, 0, 0, 0);
+
+      // Stars
+      const starPoints = viewer.scene.primitives.add(new Cesium.PointPrimitiveCollection());
+      for (let i = 0; i < 2000; i++) {
+        const theta = Math.random() * Math.PI * 2;
+        const phi = Math.acos(2 * Math.random() - 1);
+        const r = 1e9;
+        starPoints.add({
+          position: new Cesium.Cartesian3(r * Math.sin(phi) * Math.cos(theta), r * Math.sin(phi) * Math.sin(theta), r * Math.cos(phi)),
+          pixelSize: 0.8 + Math.random() * 1.8,
+          color: Cesium.Color.fromAlpha(Cesium.Color.WHITE, 0.5 + Math.random() * 0.5),
+        });
+      }
+
+      // Local earth map
+      viewer.imageryLayers.removeAll();
+      viewer.imageryLayers.addImageryProvider(
+        new Cesium.SingleTileImageryProvider({
+          url: '/earthmap.jpg',
+        })
+      );
+
+      viewer.scene.globe.baseColor = Cesium.Color.fromCssColorString('#0a2f5a');
+
+      viewer.camera.setView({
+        destination: Cesium.Cartesian3.fromDegrees(119, 31, 28000000),
+        orientation: { heading: 0, pitch: -Math.PI / 2.8, roll: 0 },
+      });
+
+      console.log('Viewer created successfully');
+    } catch (e) {
+      console.error('Cesium error:', e);
+      document.body.innerHTML = '<div style="color:white;padding:20px;"><h1>Cesium Error</h1><pre>' + e.stack + '</pre></div>';
+    }
+  </script>
+</body>
+</html>

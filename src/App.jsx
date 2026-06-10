@@ -1,7 +1,29 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, Component } from 'react';
 import GlobePage from './pages/GlobePage';
 import CityDetail from './pages/CityDetail';
 import CityAdminPanel from './components/admin/CityAdminPanel';
+
+class ErrorBoundary extends Component {
+  constructor(props) {
+    super(props);
+    this.state = { hasError: false, error: null };
+  }
+  static getDerivedStateFromError(error) {
+    return { hasError: true, error };
+  }
+  render() {
+    if (this.state.hasError) {
+      return (
+        <div style={{ color: 'red', background: '#111', padding: 40, fontFamily: 'monospace', height: '100vh' }}>
+          <h1>React Error</h1>
+          <pre style={{ whiteSpace: 'pre-wrap', fontSize: 14 }}>{this.state.error?.message}</pre>
+          <pre style={{ whiteSpace: 'pre-wrap', fontSize: 12, color: '#999' }}>{this.state.error?.stack}</pre>
+        </div>
+      );
+    }
+    return this.props.children;
+  }
+}
 
 export default function App() {
   const [page, setPage] = useState('globe'); // 'globe' | 'city' | 'admin'
@@ -27,7 +49,8 @@ export default function App() {
   }, []);
 
   return (
-    <div style={{ width: '100vw', height: '100vh', overflow: 'hidden' }}>
+    <ErrorBoundary>
+    <div style={{ width: '100%', height: '100vh', overflow: 'hidden' }}>
       {page === 'globe' && (
         <GlobePage
           goToCity={goToCity}
@@ -46,5 +69,6 @@ export default function App() {
         <CityAdminPanel onBack={closeAdmin} />
       )}
     </div>
+    </ErrorBoundary>
   );
 }
